@@ -27,7 +27,8 @@ use std::default::Default;
  * Some are just from reading RFC/Standards:
  * Snappy: https://github.com/google/snappy/blob/master/framing_format.txt
  * XZ: http://tukaani.org/xz/xz-file-format.txt
- * Brotli: https://github.com/madler/brotli/blob/501e6a9d03bcc15f0bc8015f4f36054c30f699ca/br-format-v3.txt
+ * Brotli:
+ * https://github.com/madler/brotli/blob/501e6a9d03bcc15f0bc8015f4f36054c30f699ca/br-format-v3.txt
  * Zstd: https://github.com/facebook/zstd
  * Zstd (cont.): https://github.com/facebook/zstd/blob/dev/doc/zstd_compression_format.md
  */
@@ -274,6 +275,9 @@ impl Format {
  * SO YEAH IT IS RECURSIVE DECENT
  */
 fn what_format(x: &[u8]) -> Option<Format> {
+    if x.len() < 2 {
+        return None;
+    }
     match &x[0..2] {
         b"\x1F\x9D" => return Some(Format::LZW(Quality::Default)),
         b"\x1F\xA0" => return Some(Format::LZH(Quality::Default)),
@@ -281,6 +285,9 @@ fn what_format(x: &[u8]) -> Option<Format> {
         b"\x30\x30" | b"\x20\x00" => return Some(Format::Tar(Quality::Default)),
         _ => {}
     };
+    if x.len() < 3 {
+        return None;
+    }
     match &x[0..3] {
         b"\x37\x7A\xBC" | b"\xAF\x27\x1C" => return Some(Format::Xz(Quality::Default)),
         b"\x42\x5A\x68" => return Some(Format::Bzip2(Quality::Default)),
@@ -289,23 +296,32 @@ fn what_format(x: &[u8]) -> Option<Format> {
         }
         _ => {}
     };
+    if x.len() < 4 {
+        return None;
+    }
     match &x[0..4] {
-    b"\x81\xCF\xB2\xCE" |
-    b"\xCE\xB2\xCF\x81" => return Some(Format::Brotli(Quality::Default)),
-    b"\x18\x4D\x22\x04" |
-    b"\x04\x22\x4D\x18" => return Some(Format::Lz4(Quality::Default)),
-    b"\xB5\x28\xFD\x2F" | // Functionally _any_ block can start a zstd binary ball of joy
-    b"\x28\xB5\x2F\xFD" | // this is rarely poorly documented
-    b"\x27\xB5\x2F\xFD" | // 
-    b"\xFD\x2F\xB5\x27" | // I just add a new entry every time I see an error
-    b"\x28\xB5\x2F\xFD" |
-    b"\xFD\x2F\xB5\x28" => return Some(Format::Zstd(Quality::Default)),
-    _ => { }
-  };
+        b"\x81\xCF\xB2\xCE" |
+        b"\xCE\xB2\xCF\x81" => return Some(Format::Brotli(Quality::Default)),
+        b"\x18\x4D\x22\x04" |
+        b"\x04\x22\x4D\x18" => return Some(Format::Lz4(Quality::Default)),
+        b"\xB5\x28\xFD\x2F" | // Functionally _any_ block can start a zstd binary ball of joy
+        b"\x28\xB5\x2F\xFD" | // this is rarely poorly documented
+        b"\x27\xB5\x2F\xFD" | //
+        b"\xFD\x2F\xB5\x27" | // I just add a new entry every time I see an error
+        b"\x28\xB5\x2F\xFD" |
+        b"\xFD\x2F\xB5\x28" => return Some(Format::Zstd(Quality::Default)),
+        _ => { }
+     };
+    if x.len() < 6 {
+        return None;
+    }
     match &x[0..6] {
         b"\xFD\x37\x7A\x58\x5A\x00" => return Some(Format::Xz(Quality::Default)),
         _ => {}
     };
+    if x.len() < 9 {
+        return None;
+    }
     match &x[0..9] {
         b"\xFF\x06\x00\x73\x4E\x61\x50\x70\x59" => return Some(Format::Snappy(Quality::Default)),
         _ => {}
