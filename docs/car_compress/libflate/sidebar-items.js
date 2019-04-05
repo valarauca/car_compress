@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["GzQuality","When compressing data, the compression level can be specified by a value in this enum."]],"struct":[["Decode","A gzip streaming decoder"],["Encode","A gzip streaming encoder"]]});

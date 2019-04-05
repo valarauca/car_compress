@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["from_continuous","Train a dictionary from a big continuous chunk of data."],["from_files","Train a dict from a list of files."],["from_samples","Train a dictionary from multiple samples."]]});

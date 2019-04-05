@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Decode","A reader for decompressing a Snappy stream."],["Encode","A writer for compressing a Snappy stream."]]});

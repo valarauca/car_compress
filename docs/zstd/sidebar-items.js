@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["block","Compress and decompress individual blocks."],["dict","Train a dictionary from various sources."],["stream","Compress and decompress Zstd streams."]]});
