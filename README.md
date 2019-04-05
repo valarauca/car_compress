@@ -1,7 +1,7 @@
 car-compress
 ---
 
-[documentation](https://valarauca.github.io/car_compress/car_compress)
+[documentation](https://valarauca.github.io/car_compress/car_compress/index.html)
 
 This is the core compression suite used in the car file archive utility. 
 
