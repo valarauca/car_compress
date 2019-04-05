@@ -41,8 +41,8 @@ impl<R: BufRead> BrotliEncoder<R> {
             obj: r,
             max: data.input_block_size(),
             cur: 0,
-            data: data,
             done: false,
+            data,
         }
     }
 
@@ -55,8 +55,8 @@ impl<R: BufRead> BrotliEncoder<R> {
             obj: r,
             max: data.input_block_size(),
             cur: 0,
-            data: data,
             done: false,
+            data,
         }
     }
 
@@ -81,7 +81,7 @@ impl<R: BufRead> BrotliEncoder<R> {
 
 impl<R: BufRead> Read for BrotliEncoder<R> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        if buf.len() == 0 {
+        if buf.is_empty() {
             return Ok(0);
         }
 
@@ -109,12 +109,12 @@ impl<R: BufRead> Read for BrotliEncoder<R> {
                 self.done = true;
             }
 
-            if out.len() == 0 {
+            if out.is_empty() {
                 assert!(!self.done);
                 continue;
             }
             let ret = try!(out.read(buf));
-            if out.len() > 0 {
+            if !out.is_empty() {
                 self.buf.get_mut().extend_from_slice(out);
             }
             return Ok(ret);
@@ -153,7 +153,7 @@ impl<R: BufRead> BrotliDecoder<R> {
 
 impl<R: BufRead> Read for BrotliDecoder<R> {
     fn read(&mut self, mut buf: &mut [u8]) -> io::Result<usize> {
-        if buf.len() == 0 {
+        if buf.is_empty() {
             return Ok(0);
         }
 

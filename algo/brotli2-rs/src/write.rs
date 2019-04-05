@@ -32,8 +32,8 @@ impl<W: Write> BrotliEncoder<W> {
         BrotliEncoder {
             max: data.input_block_size(),
             cur: 0,
-            data: data,
             obj: Some(obj),
+            data,
         }
     }
 
@@ -44,8 +44,8 @@ impl<W: Write> BrotliEncoder<W> {
         BrotliEncoder {
             max: data.input_block_size(),
             cur: 0,
-            data: data,
             obj: Some(obj),
+            data,
         }
     }
 
@@ -105,7 +105,7 @@ impl<W: Write> BrotliDecoder<W> {
     }
 
     fn dump(&mut self) -> io::Result<()> {
-        if self.buf.len() > 0 {
+        if !self.buf.is_empty() {
             try!(self.obj.as_mut().unwrap().write_all(&self.buf));
             self.buf.truncate(0);
         }
@@ -140,7 +140,7 @@ impl<W: Write> Write for BrotliDecoder<W> {
             let res = try!(self.data.decompress_vec(&mut data, &mut self.buf));
             let written = data_len - data.len();
 
-            if written > 0 || data.len() == 0 || res == Status::Finished {
+            if written > 0 || data.is_empty() || res == Status::Finished {
                 return Ok(written);
             }
         }
