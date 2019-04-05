@@ -16,7 +16,8 @@ This file exists to list credit/thanks/changes.
  # Gzip
 * Credit: [Takeru Ohta](https://github.com/sile)
 * Repo: [link](https://github.com/sile/libflate)
-* Changes: NONE
+* Changes:
+  * 2019-04-04: Applied clippy + rustfmt
 * License: MIT
 
  # Snappy
@@ -44,6 +45,7 @@ This file exists to list credit/thanks/changes.
 * Changes:
   * 2017-03-01: Modified constructors [Pull Request](https://github.com/alexcrichton/brotli2-rs/pull/6)
   * 2017-03-11: Modified `CompresssionMode` to have the `Clone`, `Copy`, and `Debug` traits. Included in above PR
+  * 2019-04-04: Modified most internal files, `clippy` and `rustfmt` were ran.
 * License: MIT/Apache-2.0 (Dual License)
 
  # Lz4

@@ -87,7 +87,7 @@ where
             // return that 0 bytes of data have been read then it will
             // be interpreted as EOF.
             Ok(Status::Ok) |
-            Ok(Status::BufError) if read == 0 && !eof && dst.len() > 0 => continue,
+            Ok(Status::BufError) if read == 0 && !eof && !dst.is_empty() => continue,
             Ok(Status::Ok) |
             Ok(Status::BufError) |
             Ok(Status::StreamEnd) => return Ok(read),
@@ -141,7 +141,7 @@ impl<W: Write, D: Ops> Writer<W, D> {
     }
 
     fn dump(&mut self) -> io::Result<()> {
-        if self.buf.len() > 0 {
+        if !self.buf.is_empty() {
             try!(self.obj.as_mut().unwrap().write_all(&self.buf));
             self.buf.truncate(0);
         }
@@ -164,7 +164,7 @@ impl<W: Write, D: Ops> Write for Writer<W, D> {
             let ret = self.data.run_vec(buf, &mut self.buf, Flush::None);
             let written = (self.data.total_in() - before_in) as usize;
 
-            if buf.len() > 0 && written == 0 && ret.is_ok() {
+            if !buf.is_empty() && written == 0 && ret.is_ok() {
                 continue;
             }
             return match ret {

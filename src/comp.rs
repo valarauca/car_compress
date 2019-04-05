@@ -254,7 +254,7 @@ impl<W: Write> Comp<W> {
                 (q.into_zstd())(BufWriter::with_capacity(131072, w))?,
             )),
             Format::Lz4(q) => Ok(Comp::Lz4(
-                (q.into_lz4()(BufWriter::with_capacity(131072, w))?),
+                q.into_lz4()(BufWriter::with_capacity(131072, w))?,
             )),
             Format::Xz(q) => Ok(Comp::Xz(
                 XzEn::new(BufWriter::with_capacity(131072, w), q.into_xz()),

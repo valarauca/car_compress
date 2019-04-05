@@ -108,6 +108,11 @@ pub struct Header {
     mtime: u32,
 }
 
+impl Default for Builder {
+    fn default() -> Self {
+        Builder::new()
+    }
+}
 impl Builder {
     /// Create a new blank builder with no header by default.
     pub fn new() -> Builder {
@@ -189,34 +194,25 @@ impl Builder {
         } = self;
         let mut flg = 0;
         let mut header = vec![0u8; 10];
-        match extra {
-            Some(v) => {
-                flg |= FEXTRA;
-                header.push((v.len() >> 0) as u8);
-                header.push((v.len() >> 8) as u8);
-                header.extend(v);
-            }
-            None => {}
+        if let Some(local_extra) = extra {
+            flg |= FEXTRA;
+            header.push(local_extra.len() as u8);
+            header.push((local_extra.len() >> 8) as u8);
+            header.extend(local_extra);
         }
-        match filename {
-            Some(filename) => {
-                flg |= FNAME;
-                header.extend(filename.as_bytes_with_nul().iter().map(|x| *x));
-            }
-            None => {}
+        if let Some(local_filename) = filename {
+            flg |= FNAME;
+            header.extend_from_slice(local_filename.to_bytes_with_nul());
         }
-        match comment {
-            Some(comment) => {
-                flg |= FCOMMENT;
-                header.extend(comment.as_bytes_with_nul().iter().map(|x| *x));
-            }
-            None => {}
+        if let Some(local_comment) = comment {
+            flg |= FCOMMENT;
+            header.extend_from_slice(local_comment.to_bytes_with_nul());
         }
         header[0] = 0x1f;
         header[1] = 0x8b;
         header[2] = 8;
         header[3] = flg;
-        header[4] = (mtime >> 0) as u8;
+        header[4] = mtime as u8;
         header[5] = (mtime >> 8) as u8;
         header[6] = (mtime >> 16) as u8;
         header[7] = (mtime >> 24) as u8;
@@ -231,7 +227,7 @@ impl Builder {
             "win32" => 0,
             _ => 255,
         };
-        return header;
+        header
     }
 }
 
@@ -255,18 +251,18 @@ impl<W: Write> EncoderWriter<W> {
     }
 
     fn do_finish(&mut self) -> io::Result<()> {
-        if self.header.len() != 0 {
+        if !self.header.is_empty() {
             try!(self.inner.get_mut().unwrap().write_all(&self.header));
         }
         try!(self.inner.finish());
-        let mut inner = self.inner.get_mut().unwrap();
+        let inner = self.inner.get_mut().unwrap();
         let (sum, amt) = (self.crc.sum() as u32, self.crc.amt_as_u32());
         let buf = [
-            (sum >> 0) as u8,
+            sum as u8,
             (sum >> 8) as u8,
             (sum >> 16) as u8,
             (sum >> 24) as u8,
-            (amt >> 0) as u8,
+            amt as u8,
             (amt >> 8) as u8,
             (amt >> 16) as u8,
             (amt >> 24) as u8,
@@ -277,7 +273,7 @@ impl<W: Write> EncoderWriter<W> {
 
 impl<W: Write> Write for EncoderWriter<W> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        if self.header.len() != 0 {
+        if !self.header.is_empty() {
             try!(self.inner.get_mut().unwrap().write_all(&self.header));
             self.header.truncate(0);
         }
@@ -319,15 +315,28 @@ impl<R: Read> EncoderReader<R> {
 
 fn copy(into: &mut [u8], from: &[u8], pos: &mut usize) -> usize {
     let min = cmp::min(into.len(), from.len() - *pos);
-    for (slot, val) in into.iter_mut().zip(from[*pos..*pos + min].iter()) {
-        *slot = *val;
+    unsafe {
+        let overlap = {
+            let from_ptr = from.as_ptr() as usize;
+            let from_ptr_offset = from.as_ptr().add(min) as usize;
+            let to_ptr = into.as_ptr() as usize;
+            let to_ptr_offset = into.as_ptr().add(min) as usize;
+
+            ((from_ptr <= to_ptr) && (to_ptr <= from_ptr_offset)) ||
+                ((to_ptr <= from_ptr) && (from_ptr <= to_ptr_offset))
+        };
+        if overlap {
+            ::std::intrinsics::copy(from.as_ptr(), into.as_mut_ptr(), min);
+        } else {
+            ::std::intrinsics::copy_nonoverlapping(from.as_ptr(), into.as_mut_ptr(), min);
+        }
     }
     *pos += min;
-    return min;
+    min
 }
 
 impl<R: Read> Read for EncoderReader<R> {
-    fn read(&mut self, mut into: &mut [u8]) -> io::Result<usize> {
+    fn read(&mut self, into: &mut [u8]) -> io::Result<usize> {
         self.inner.read(into)
     }
 }
@@ -354,12 +363,12 @@ impl<R: BufRead> EncoderReaderBuf<R> {
             return Ok(0);
         }
         let crc = self.inner.get_ref().crc();
-        let ref arr = [
-            (crc.sum() >> 0) as u8,
+        let arr = &[
+            crc.sum() as u8,
             (crc.sum() >> 8) as u8,
             (crc.sum() >> 16) as u8,
             (crc.sum() >> 24) as u8,
-            (crc.amt_as_u32() >> 0) as u8,
+            crc.amt_as_u32() as u8,
             (crc.amt_as_u32() >> 8) as u8,
             (crc.amt_as_u32() >> 16) as u8,
             (crc.amt_as_u32() >> 24) as u8,
@@ -445,13 +454,12 @@ impl<R: BufRead> DecoderReaderBuf<R> {
     /// returned.
     pub fn new(mut r: R) -> io::Result<DecoderReaderBuf<R>> {
         let header = try!(read_gz_header(&mut r));
-
         let flate = deflate::DecoderReaderBuf::new(r);
-        return Ok(DecoderReaderBuf {
+        Ok(DecoderReaderBuf {
             inner: CrcReader::new(flate),
-            header: header,
+            header,
             finished: false,
-        });
+        })
     }
 
 
@@ -464,7 +472,7 @@ impl<R: BufRead> DecoderReaderBuf<R> {
         if self.finished {
             return Ok(());
         }
-        let ref mut buf = [0u8; 8];
+        let buf = &mut [0u8; 8];
         {
             let mut len = 0;
 
@@ -476,10 +484,10 @@ impl<R: BufRead> DecoderReaderBuf<R> {
             }
         }
 
-        let crc = ((buf[0] as u32) << 0) | ((buf[1] as u32) << 8) | ((buf[2] as u32) << 16) |
-            ((buf[3] as u32) << 24);
-        let amt = ((buf[4] as u32) << 0) | ((buf[5] as u32) << 8) | ((buf[6] as u32) << 16) |
-            ((buf[7] as u32) << 24);
+        let crc = u32::from(buf[0]) | (u32::from(buf[1]) << 8) | (u32::from(buf[2]) << 16) |
+            (u32::from(buf[3]) << 24);
+        let amt = u32::from(buf[4]) | (u32::from(buf[5]) << 8) | (u32::from(buf[6]) << 16) |
+            (u32::from(buf[7]) << 24);
         if crc != self.inner.crc().sum() as u32 {
             return Err(corrupt());
         }
@@ -512,13 +520,12 @@ impl<R: BufRead> MultiDecoderReaderBuf<R> {
     /// returned.
     pub fn new(mut r: R) -> io::Result<MultiDecoderReaderBuf<R>> {
         let header = try!(read_gz_header(&mut r));
-
         let flate = deflate::DecoderReaderBuf::new(r);
-        return Ok(MultiDecoderReaderBuf {
+        Ok(MultiDecoderReaderBuf {
             inner: CrcReader::new(flate),
-            header: header,
+            header,
             finished: false,
-        });
+        })
     }
 
 
@@ -531,7 +538,7 @@ impl<R: BufRead> MultiDecoderReaderBuf<R> {
         if self.finished {
             return Ok(0);
         }
-        let ref mut buf = [0u8; 8];
+        let buf = &mut [0u8; 8];
         {
             let mut len = 0;
 
@@ -543,10 +550,10 @@ impl<R: BufRead> MultiDecoderReaderBuf<R> {
             }
         }
 
-        let crc = ((buf[0] as u32) << 0) | ((buf[1] as u32) << 8) | ((buf[2] as u32) << 16) |
-            ((buf[3] as u32) << 24);
-        let amt = ((buf[4] as u32) << 0) | ((buf[5] as u32) << 8) | ((buf[6] as u32) << 16) |
-            ((buf[7] as u32) << 24);
+        let crc = u32::from(buf[0]) | (u32::from(buf[1]) << 8) | (u32::from(buf[2]) << 16) |
+            (u32::from(buf[3]) << 24);
+        let amt = u32::from(buf[4]) | (u32::from(buf[5]) << 8) | (u32::from(buf[6]) << 16) |
+            (u32::from(buf[7]) << 24);
         if crc != self.inner.crc().sum() as u32 {
             return Err(corrupt());
         }
@@ -625,7 +632,7 @@ fn bad_header() -> io::Error {
 fn read_le_u16<R: Read>(r: &mut R) -> io::Result<u16> {
     let mut b = [0; 2];
     try!(r.read_exact(&mut b));
-    Ok((b[0] as u16) | ((b[1] as u16) << 8))
+    Ok(u16::from(b[0]) | (u16::from(b[1]) << 8))
 }
 
 fn read_gz_header<R: Read>(r: &mut R) -> io::Result<Header> {
@@ -644,8 +651,8 @@ fn read_gz_header<R: Read>(r: &mut R) -> io::Result<Header> {
     }
 
     let flg = header[3];
-    let mtime = ((header[4] as u32) << 0) | ((header[5] as u32) << 8) |
-        ((header[6] as u32) << 16) | ((header[7] as u32) << 24);
+    let mtime = u32::from(header[4]) | (u32::from(header[5]) << 8) |
+        (u32::from(header[6]) << 16) | (u32::from(header[7]) << 24);
     let _xfl = header[8];
     let _os = header[9];
 
@@ -695,10 +702,10 @@ fn read_gz_header<R: Read>(r: &mut R) -> io::Result<Header> {
     }
 
     Ok(Header {
-        extra: extra,
-        filename: filename,
-        comment: comment,
-        mtime: mtime,
+        extra,
+        filename,
+        comment,
+        mtime,
     })
 }
 
