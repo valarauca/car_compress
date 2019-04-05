@@ -1,87 +1,225 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
-<span id="2"> 2</span>
-<span id="3"> 3</span>
-<span id="4"> 4</span>
-<span id="5"> 5</span>
-<span id="6"> 6</span>
-<span id="7"> 7</span>
-<span id="8"> 8</span>
-<span id="9"> 9</span>
-<span id="10">10</span>
-<span id="11">11</span>
-<span id="12">12</span>
-<span id="13">13</span>
-<span id="14">14</span>
-<span id="15">15</span>
-<span id="16">16</span>
-<span id="17">17</span>
-<span id="18">18</span>
-<span id="19">19</span>
-<span id="20">20</span>
-<span id="21">21</span>
-<span id="22">22</span>
-<span id="23">23</span>
-<span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
-<span id="27">27</span>
-<span id="28">28</span>
-<span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
 </pre><div class="example-wrap"><pre class="rust ">
 
-<span class="comment">/*
- * Re-Export the other modules
- *
- */</span>
-
-
+<span class="doccomment">//! Compression/Decompression</span>
+<span class="doccomment">//! ---</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This library consistents of a collection of compression</span>
+<span class="doccomment">//! and decompression algorithms. It very likely contains</span>
+<span class="doccomment">//! what you need in order to handle what you need.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## How to use this library</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This library exposes the native compression functions,</span>
+<span class="doccomment">//! as well general encapsulating `Comp` and `Decomp` types</span>
+<span class="doccomment">//! which allow for dynamic, and wide ranging compression</span>
+<span class="doccomment">//! without code changes.</span>
+<span class="doccomment">//! This goes so far as to the support automatic compression</span>
+<span class="doccomment">//! type detection for decompresion.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! There is also a collection of `lib$ALGORITHM` named</span>
+<span class="doccomment">//! modules which publically expose some of the implemnation</span>
+<span class="doccomment">//! details of the underlying algorith.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## What Algorithm do I want?</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [This may help](https://quixdb.github.io/squash-benchmark/).</span>
+<span class="doccomment">//! Set the data type to approximate yours, set the transfer speed</span>
+<span class="doccomment">//! to approximate  yours, then compare the compression (write)</span>
+<span class="doccomment">//! times to the decompression (read) times and try to see if you</span>
+<span class="doccomment">//! save time either decompressing every read, or save time</span>
+<span class="doccomment">//! compression / decompressing because what you are moving</span>
+<span class="doccomment">//! is big, or slow.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Decompression</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">lz4</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">liblz4</span> {
+    <span class="doccomment">//! LZ4 - fast but dumb</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Very fast, not an amazing compression ratio.</span>
+    <span class="doccomment">//! Fast enough to use over highspeed PCI-e links</span>
+    <span class="doccomment">//! and still get a speed up.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Internal library is a mild work in progress.</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">lz4</span>::{<span class="ident">BlockSize</span> <span class="kw">as</span> <span class="ident">BSize</span>, <span class="ident">BlockMode</span> <span class="kw">as</span> <span class="ident">BMode</span>, <span class="ident">ContentChecksum</span> <span class="kw">as</span> <span class="ident">Checksum</span>,
                          <span class="ident">Decoder</span> <span class="kw">as</span> <span class="ident">Decode</span>, <span class="ident">Encoder</span> <span class="kw">as</span> <span class="ident">Encode</span>, <span class="ident">EncoderBuilder</span> <span class="kw">as</span> <span class="ident">Builder</span>};
 }
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">zstd</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">libzstd</span> {
+    <span class="doccomment">//! ZSTD - [tune-able lz4](https://facebook.github.io/zstd/)</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Tune-able compression ratio and speed. It can beat</span>
+    <span class="doccomment">//! `zlib`, and `xz2` in eithers usecase depending on settings.</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">zstd</span>::{<span class="ident">Decoder</span> <span class="kw">as</span> <span class="ident">Decode</span>, <span class="ident">Encoder</span> <span class="kw">as</span> <span class="ident">Encode</span>};
 }
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">snap</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">libsnap</span> {
+    <span class="doccomment">//! SNAPPY - google&#39;s disappointing answer to lz4</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! snappy is built to be a lot like lz4, very quick</span>
+    <span class="doccomment">//! but very dumb, good for snappy in memory stuff</span>
+    <span class="doccomment">//! over quick data center links.</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">snap</span>::{<span class="ident">Reader</span> <span class="kw">as</span> <span class="ident">Decode</span>, <span class="ident">Writer</span> <span class="kw">as</span> <span class="ident">Encode</span>};
 }
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">xz2</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">libxz</span> {
+    <span class="doccomment">//! XZ (LZMA2) - 7zip (kind of)</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! LZMA is a nice compression algorithm on paper</span>
+    <span class="doccomment">//! but the author of LZMA (and 7zip) wrote some</span>
+    <span class="doccomment">//! extremely accursed c code nobody on the internet</span>
+    <span class="doccomment">//! could make heads nor tails of.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! There was only one LZMA tool in town `7zip`.</span>
+    <span class="doccomment">//! It didn&#39;t follow the unix cli conventions because</span>
+    <span class="doccomment">//! why would a win32 program do that?</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! BUUUUT LZMA is actually really good for</span>
+    <span class="doccomment">//! archival compression, and the spice must flow!</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! So `xz` arrivied, which speaks `LZMA2`, and</span>
+    <span class="doccomment">//! can decompress `LZMA`.</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">xz2</span>::<span class="ident">read</span>::<span class="ident">XzDecoder</span> <span class="kw">as</span> <span class="ident">Decode</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">xz2</span>::<span class="ident">write</span>::<span class="ident">XzEncoder</span> <span class="kw">as</span> <span class="ident">Encode</span>;
 }
@@ -89,6 +227,7 @@
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">flate2</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">libflate</span> {
+    <span class="doccomment">//! GZIP - young gz always there for you</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">flate2</span>::<span class="ident">Compression</span> <span class="kw">as</span> <span class="ident">GzQuality</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">flate2</span>::<span class="ident">write</span>::<span class="ident">GzEncoder</span> <span class="kw">as</span> <span class="ident">Encode</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">flate2</span>::<span class="ident">read</span>::<span class="ident">GzDecoder</span> <span class="kw">as</span> <span class="ident">Decode</span>;
@@ -96,6 +235,12 @@
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">brotli2</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">libbrotli</span> {
+    <span class="doccomment">//! Brotli - Modern (2010&#39;s) Tunable Compression</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Tune-able compression ratio and speed. It can beat</span>
+    <span class="doccomment">//! `zlib`, and `xz2` in eithers usecase depending on settings.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! The highest levels aren&#39;t great.</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">brotli2</span>::<span class="ident">write</span>::<span class="ident">BrotliEncoder</span> <span class="kw">as</span> <span class="ident">Encode</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">brotli2</span>::<span class="ident">read</span>::<span class="ident">BrotliDecoder</span> <span class="kw">as</span> <span class="ident">Decode</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">brotli2</span>::<span class="ident">stream</span>::{<span class="ident">CompressParams</span> <span class="kw">as</span> <span class="ident">Builder</span>, <span class="ident">CompressMode</span> <span class="kw">as</span> <span class="ident">Mode</span>};
@@ -103,11 +248,28 @@
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">bzip2</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">libbzip</span> {
+    <span class="doccomment">//! BZIP2 - RUNNING THROUGH THE 90&#39;S</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! BZIP2 was better then `gzip`, in the way that `xz` is now.</span>
+    <span class="doccomment">//! It was good archival compression, slow to write, but</span>
+    <span class="doccomment">//! you&#39;ll read it a few times and that&#39;ll get made up for.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! `xz` was a lot better, it also compressed _at the same rate_</span>
+    <span class="doccomment">//! as `bzip2`, and got a better ratio which is said for `bzip2`.</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Presently `brotli` and `zstd` are beating out `xz`</span>
+    <span class="doccomment">//! so `bzip2` mostly hangs around because it got</span>
+    <span class="doccomment">//! cc&#39;d on a lot of weird 90&#39;s standards that are still</span>
+    <span class="doccomment">//! in use today like `zip` files (and `jar` files).</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Also a lot of `perl` and `php` packages use it,</span>
+    <span class="doccomment">//! and functionally those langauges control &gt;30%</span>
+    <span class="doccomment">//! of the internet&#39;s content (`facebook.com`, `pornhub.com`)</span>
+    <span class="doccomment">//! they are _still relevant today_.</span>
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">bzip2</span>::<span class="ident">write</span>::<span class="ident">BzEncoder</span> <span class="kw">as</span> <span class="ident">Encode</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">bzip2</span>::<span class="ident">read</span>::<span class="ident">BzDecoder</span> <span class="kw">as</span> <span class="ident">Decode</span>;
     <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">bzip2</span>::<span class="ident">Compression</span> <span class="kw">as</span> <span class="ident">BzQuality</span>;
 }
-
 
 <span class="kw">mod</span> <span class="ident">header</span>;
 <span class="kw">mod</span> <span class="ident">comp</span>;

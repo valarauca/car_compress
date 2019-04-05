@@ -43,23 +43,19 @@ use std::default::Default;
 /// _Any_ input for `Format::Snappy` is ignored as it only has
 /// 1 mode of operation.
 ///
-/// #Brotli
+/// # Brotli
 ///
 ///* `Quality::FastLow`: 2
 ///* `Quality::Default`: 5
 ///* `Quality::SlowHigh`: 8
 ///
-/// #Zstd
+/// # Zstd
 ///
 ///* `Quality::FastLow`: 1
 ///* `Quality::Default`: 10
 ///* `Quality::SlowHigh`: 21
 ///
-/// #Lz4
-///
-///User input is ignored, default value is always used.
-///
-/// #Xz
+/// # Xz
 ///
 ///* `Quality::FastLow`: 0
 ///* `Quality::Default`: 3
@@ -80,8 +76,23 @@ pub enum Quality {
     Lz4Special(Lz4BSize, Lz4BMode, Lz4Checksum, u32),
 }
 impl Quality {
-    /// Creates a closure which contructs the LZ4 encoder with
-    /// the compression information in the enum
+    /// builds an `lz4` encoder of the correct compression level.
+    ///
+    /// # type info
+    ///
+    /// ```no_test
+    /// match self {
+    ///    FastLow => level 1
+    ///    SlowHigh => level 16
+    ///    Lz4Speial => level you pick
+    ///    Default |
+    ///    _ => level 3
+    /// }
+    /// ```
+    ///
+    /// This function will specially handle `lz4`'s semantics when
+    /// building it. If you use a non-`lz4` special `Quality` argument
+    /// this will just spit out `Default` instead of erroring.
     pub fn into_lz4<W: io::Write>(self) -> Box<Fn(W) -> io::Result<LzEn<W>>> {
         match self {
             Quality::FastLow => Box::new(move |w| {

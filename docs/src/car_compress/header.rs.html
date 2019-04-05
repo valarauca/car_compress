@@ -328,6 +328,17 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
 </pre><div class="example-wrap"><pre class="rust ">
 
 
@@ -374,23 +385,19 @@
 <span class="doccomment">/// _Any_ input for `Format::Snappy` is ignored as it only has</span>
 <span class="doccomment">/// 1 mode of operation.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// #Brotli</span>
+<span class="doccomment">/// # Brotli</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///* `Quality::FastLow`: 2</span>
 <span class="doccomment">///* `Quality::Default`: 5</span>
 <span class="doccomment">///* `Quality::SlowHigh`: 8</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// #Zstd</span>
+<span class="doccomment">/// # Zstd</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///* `Quality::FastLow`: 1</span>
 <span class="doccomment">///* `Quality::Default`: 10</span>
 <span class="doccomment">///* `Quality::SlowHigh`: 21</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// #Lz4</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///User input is ignored, default value is always used.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// #Xz</span>
+<span class="doccomment">/// # Xz</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///* `Quality::FastLow`: 0</span>
 <span class="doccomment">///* `Quality::Default`: 3</span>
@@ -411,8 +418,23 @@
     <span class="ident">Lz4Special</span>(<span class="ident">Lz4BSize</span>, <span class="ident">Lz4BMode</span>, <span class="ident">Lz4Checksum</span>, <span class="ident">u32</span>),
 }
 <span class="kw">impl</span> <span class="ident">Quality</span> {
-    <span class="doccomment">/// Creates a closure which contructs the LZ4 encoder with</span>
-    <span class="doccomment">/// the compression information in the enum</span>
+    <span class="doccomment">/// builds an `lz4` encoder of the correct compression level.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # type info</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_test</span>
+    <span class="doccomment">/// match self {</span>
+    <span class="doccomment">///    FastLow =&gt; level 1</span>
+    <span class="doccomment">///    SlowHigh =&gt; level 16</span>
+    <span class="doccomment">///    Lz4Speial =&gt; level you pick</span>
+    <span class="doccomment">///    Default |</span>
+    <span class="doccomment">///    _ =&gt; level 3</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This function will specially handle `lz4`&#39;s semantics when</span>
+    <span class="doccomment">/// building it. If you use a non-`lz4` special `Quality` argument</span>
+    <span class="doccomment">/// this will just spit out `Default` instead of erroring.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_lz4</span><span class="op">&lt;</span><span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Fn</span>(<span class="ident">W</span>) <span class="op">-&gt;</span> <span class="ident">io</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LzEn</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Quality</span>::<span class="ident">FastLow</span> <span class="op">=&gt;</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">w</span><span class="op">|</span> {
